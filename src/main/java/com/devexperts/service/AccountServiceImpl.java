@@ -2,6 +2,7 @@ package com.devexperts.service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class AccountServiceImpl implements AccountService {
     public void transfer(Account source, Account target, double amount) {
 
         if (!accountExist(source) || !accountExist(target)) {
-            throw new IllegalArgumentException("Account not exist!");
+            throw new NotFoundException("Account not exist!");
         }
         if (source.getAccountKey().equals(target.getAccountKey())) {
             throw new IllegalArgumentException("Account should be different");
@@ -46,6 +47,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private boolean accountExist(Account account) {
-        return accounts.get(account.getAccountKey()) != null;
+        return account != null && accounts.get(account.getAccountKey()) != null;
     }
 }

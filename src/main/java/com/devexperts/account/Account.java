@@ -36,7 +36,7 @@ public class Account {
     }
 
     public void changeBalance(Double sum) {
-        if (sum < 0 && balance < sum) {
+        if (sum < 0 && balance < Math.abs(sum)) {
             throw new InsufficientFundsException("not enough money", this);
         }
         balance += sum;
