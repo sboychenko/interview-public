@@ -5,13 +5,13 @@ import com.devexperts.account.AccountKey;
 import com.devexperts.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    private final Map<AccountKey, Account> accounts = new HashMap<>();
+    private final ConcurrentMap<AccountKey, Account> accounts = new ConcurrentHashMap<>();
 
     @Override
     public void clear() {
@@ -41,9 +41,14 @@ public class AccountServiceImpl implements AccountService {
             throw new IllegalArgumentException("Amount should be positive");
         }
 
-        // Do transfer in two steps
-        source.changeBalance(-amount);
-        target.changeBalance(amount);
+
+        source.testBalance(-amount);
+
+        synchronized (this) {
+            // Do transfer in two steps
+            source.changeBalance(-amount);
+            target.changeBalance(amount);
+        }
     }
 
     private boolean accountExist(Account account) {
